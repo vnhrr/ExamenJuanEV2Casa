@@ -1,0 +1,85 @@
+<?xml version="1.0" encoding="utf-8"?>
+<androidx.constraintlayout.widget.ConstraintLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    xmlns:app="http://schemas.android.com/apk/res-auto">
+
+    <ScrollView
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent">
+
+        <androidx.constraintlayout.widget.ConstraintLayout
+            android:layout_width="match_parent"
+            android:layout_height="match_parent">
+
+            <com.google.android.gms.maps.MapView
+                android:id="@+id/mapView"
+                android:layout_width="match_parent"
+                android:layout_height="200dp"
+                app:layout_constraintEnd_toEndOf="@+id/tvDetallesBarFD"
+                app:layout_constraintStart_toStartOf="@+id/tvDetallesBarFD"
+                app:layout_constraintTop_toBottomOf="@+id/tvNombreBArFD" />
+
+            <TextView
+                android:id="@+id/tvDetallesBarFD"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="TextView"
+                android:textColor="@color/black"
+                android:textSize="32dp"
+                app:layout_constraintEnd_toEndOf="parent"
+                app:layout_constraintStart_toStartOf="parent"
+                app:layout_constraintTop_toTopOf="parent" />
+
+            <TextView
+                android:id="@+id/tvNombreBArFD"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="TextView"
+                android:textColor="@color/black"
+                android:textSize="24dp"
+                app:layout_constraintEnd_toEndOf="@+id/tvDetallesBarFD"
+                app:layout_constraintStart_toStartOf="@+id/tvDetallesBarFD"
+                app:layout_constraintTop_toBottomOf="@+id/tvDetallesBarFD" />
+
+            <Button
+                android:id="@+id/btModBarFD"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="20dp"
+                android:text="Modificar"
+                app:layout_constraintEnd_toEndOf="@+id/mapView"
+                app:layout_constraintHorizontal_bias="0.052"
+                app:layout_constraintStart_toStartOf="@+id/mapView"
+                app:layout_constraintTop_toBottomOf="@+id/mapView" />
+
+            <Button
+                android:id="@+id/btPuntBarFD"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginStart="56dp"
+                android:layout_marginTop="20dp"
+                android:text="Puntuar"
+                app:layout_constraintBottom_toBottomOf="@+id/btDelBarFD"
+                app:layout_constraintStart_toEndOf="@+id/btDelBarFD"
+                app:layout_constraintTop_toTopOf="@+id/btDelBarFD"
+                app:layout_constraintVertical_bias="1.0" />
+
+            <Button
+                android:id="@+id/btDelBarFD"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginStart="44dp"
+                android:text="Eliminar"
+                app:layout_constraintBottom_toBottomOf="@+id/btModBarFD"
+                app:layout_constraintStart_toEndOf="@+id/btModBarFD"
+                app:layout_constraintTop_toTopOf="@+id/btModBarFD" />
+
+        </androidx.constraintlayout.widget.ConstraintLayout>
+    </ScrollView>
+
+</androidx.constraintlayout.widget.ConstraintLayout>
