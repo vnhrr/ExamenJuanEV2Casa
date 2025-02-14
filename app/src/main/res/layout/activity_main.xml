@@ -19,14 +19,24 @@
         app:layout_constraintTop_toTopOf="parent" />
 
     <!-- Contenedor para lista -->
+
+    <Spinner
+        android:id="@+id/spinnerBares"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        app:layout_constraintEnd_toEndOf="@+id/toolbar"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toBottomOf="@+id/toolbar" />
+
     <FrameLayout
         android:id="@+id/containerFragmentLista"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:layout_marginTop="40dp"
+        android:layout_marginTop="32dp"
         app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintHorizontal_bias="0.0"
         app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toBottomOf="@+id/toolbar" />
+        app:layout_constraintTop_toBottomOf="@+id/spinnerBares" />
 
     <FrameLayout
         android:id="@+id/containerFragmentDetalles"
