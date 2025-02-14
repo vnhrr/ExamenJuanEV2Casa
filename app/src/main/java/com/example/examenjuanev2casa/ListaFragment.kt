@@ -11,6 +11,7 @@ import android.widget.Button
 import android.widget.ListView
 import android.widget.TextView
 import androidx.fragment.app.Fragment
+import androidx.fragment.app.setFragmentResultListener
 import com.example.barapp.DetallesFragment
 
 class ListaFragment : Fragment() {
@@ -40,12 +41,19 @@ class ListaFragment : Fragment() {
             startActivity(Intent(requireContext(), AñadirActivity::class.java))
         }
 
-        // 💡 Detectar clic en un bar y enviar datos a DetallesFragment
+        // 🔥 Escuchar si un bar ha sido eliminado en `DetallesFragment`
+        setFragmentResultListener("barEliminado") { _, _ ->
+            Log.d("Database", "🔄 Recibida la señal de eliminación. Actualizando lista...")
+            actualizarLista()
+        }
+
+        // 💡 Detectar clic en un bar y enviar datos a `DetallesFragment`
         listViewBares.onItemClickListener = AdapterView.OnItemClickListener { _, _, position, _ ->
             val selectedBar = adapter.getItem(position) as Bar
 
             val detallesFragment = DetallesFragment().apply {
                 arguments = Bundle().apply {
+                    putString("id", selectedBar.id.toString())
                     putString("nombre", selectedBar.nombre_bar)
                     putFloat("latitud", selectedBar.latitud)
                     putFloat("longitud", selectedBar.longitud)
@@ -54,7 +62,7 @@ class ListaFragment : Fragment() {
             }
 
             parentFragmentManager.beginTransaction()
-                .replace(R.id.containerFragmentDetalles, detallesFragment) // Asegúrate de que este ID sea correcto
+                .replace(R.id.containerFragmentDetalles, detallesFragment)
                 .addToBackStack(null)
                 .commit()
         }
@@ -67,16 +75,19 @@ class ListaFragment : Fragment() {
 
     override fun onResume() {
         super.onResume()
-        actualizarLista()  // Actualizar lista al regresar del `AñadirActivity`
+        Log.d("Database", "🔄 onResume llamado. Forzando actualización de la lista...")
+        actualizarLista() // Asegurar que la lista se actualiza al volver
     }
 
     private fun actualizarLista() {
         val baresLista = dbHandler.getAllBares()
 
-        Log.d("Database", "📋 Total de bares obtenidos: ${baresLista.size}")
+        Log.d("Database", "📋 Total de bares obtenidos después de actualización: ${baresLista.size}")
 
         if (::adapter.isInitialized) {
             adapter.updateList(baresLista)
+            adapter.notifyDataSetChanged() // 🔥 Notificar cambios al Adapter
+            listViewBares.invalidateViews() // 🔄 Forzar redibujado de la lista
         } else {
             adapter = BarAdapter(requireContext(), baresLista)
             listViewBares.adapter = adapter

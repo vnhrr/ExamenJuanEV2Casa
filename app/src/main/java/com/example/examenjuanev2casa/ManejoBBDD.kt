@@ -145,8 +145,13 @@ class ManejoBBDD(context: Context) : SQLiteOpenHelper(context, DATABASE_NAME, nu
     // Método para eliminar un bar de la base de datos.
     fun deleteBar(bar: Bar): Int {
         val db = this.writableDatabase
-        // Elimina la fila correspondiente y retorna el número de filas afectadas.
+
+        Log.d("Database", "🔍 Buscando y eliminando bar con ID: ${bar.id}") // Verificar el ID antes de eliminar
+
         val success = db.delete(TABLE_BAR, "$KEY_ID = ?", arrayOf(bar.id.toString()))
+
+        Log.d("Database", "✅ Filas eliminadas: $success") // Verificar si realmente se eliminó algo
+
         return success
     }
 

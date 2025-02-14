@@ -3,11 +3,15 @@ package com.example.barapp
 import android.content.Intent
 import android.net.Uri
 import android.os.Bundle
+import android.util.Log
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import android.widget.*
 import androidx.fragment.app.Fragment
+import androidx.fragment.app.setFragmentResult
+import com.example.examenjuanev2casa.Bar
+import com.example.examenjuanev2casa.ManejoBBDD
 import com.example.examenjuanev2casa.R
 import com.google.android.gms.maps.CameraUpdateFactory
 import com.google.android.gms.maps.GoogleMap
@@ -19,6 +23,7 @@ import com.google.android.gms.maps.model.MarkerOptions
 // Clase DetailFragment que extiende de Fragment e implementa OnMapReadyCallback (para cargar el mapa)
 class DetallesFragment : Fragment(), OnMapReadyCallback {
 
+    private var barId: String? = null
     private var latitude: Double = 0.0
     private var longitude: Double = 0.0
 
@@ -39,8 +44,9 @@ class DetallesFragment : Fragment(), OnMapReadyCallback {
         val deleteButton = view.findViewById<Button>(R.id.btDelBarFD)
         mapView = view.findViewById(R.id.mapView) // Inicializar el MapView
 
-        // Obtener datos del bar desde los argumentos enviados
+        // Recibir los datos del bar seleccionado
         arguments?.let { bundle ->
+            barId = bundle.getString("id") // ⚡ Guarda el ID
             val barName = bundle.getString("nombre", "Nombre no disponible")
             val barWeb = bundle.getString("web", "Web no disponible")
             latitude = bundle.getFloat("latitud", 0f).toDouble()
@@ -71,8 +77,7 @@ class DetallesFragment : Fragment(), OnMapReadyCallback {
         }
 
         deleteButton.setOnClickListener {
-            Toast.makeText(requireContext(), "Bar eliminado", Toast.LENGTH_SHORT).show()
-            activity?.supportFragmentManager?.popBackStack()
+            barId?.let { id -> eliminarBar(id) }
         }
 
         return view
@@ -105,4 +110,52 @@ class DetallesFragment : Fragment(), OnMapReadyCallback {
         super.onLowMemory()
         mapView.onLowMemory()
     }
+
+    private fun eliminarBar(id: String) {
+        val dbHandler = ManejoBBDD(requireContext()) // Instanciar la base de datos
+
+        // Convertir el ID a Int
+        val barId = id.toIntOrNull()
+
+        if (barId != null) {
+            val resultado = dbHandler.deleteBar(crearBar(barId, "", "", 0.0f, 0.0f)) // Solo el ID es relevante
+
+            Log.d("Database", "Filas afectadas al eliminar: $resultado") // Verificar cuántas filas fueron eliminadas
+
+            if (resultado > 0) {
+                // Notificar que se ha eliminado un bar
+                setFragmentResult("barEliminado", Bundle().apply {
+                    putString("id", id)
+                })
+
+                Toast.makeText(requireContext(), "✅ Bar eliminado con ID: $id", Toast.LENGTH_SHORT).show()
+
+                // Volver a la lista
+                activity?.supportFragmentManager?.popBackStack()
+            } else {
+                Toast.makeText(requireContext(), "⚠️ Error al eliminar el bar", Toast.LENGTH_SHORT).show()
+            }
+        } else {
+            Toast.makeText(requireContext(), "❌ ID no válido", Toast.LENGTH_SHORT).show()
+        }
+    }
+
+    private fun crearBar(
+        id: Int = 0,
+        nombre_bar: String = "",
+        direccion: String = "",
+        valoracion: Float = 0.0f,
+        latitud: Float = 0.0f
+    ): Bar {
+        return Bar(
+            id = id,
+            nombre_bar = nombre_bar,
+            direccion = direccion,
+            valoracion = valoracion,
+            latitud = latitud,
+            longitud = 0.0f,  // Valor por defecto
+            web_bar = ""      // Valor por defecto
+        )
+    }
+
 }
