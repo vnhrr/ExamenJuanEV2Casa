@@ -20,43 +20,48 @@ import com.google.android.gms.maps.OnMapReadyCallback
 import com.google.android.gms.maps.model.LatLng
 import com.google.android.gms.maps.model.MarkerOptions
 
-// Clase DetailFragment que extiende de Fragment e implementa OnMapReadyCallback (para cargar el mapa)
+/**
+ * Fragmento que muestra los detalles de un bar, incluyendo su información y su ubicación en un mapa interactivo.
+ */
 class DetallesFragment : Fragment(), OnMapReadyCallback {
 
-    private var barId: String? = null
-    private var latitude: Double = 0.0
-    private var longitude: Double = 0.0
+    // Variables para almacenar la información del bar seleccionado
+    private var barId: String? = null // ID único del bar
+    private var latitude: Double = 0.0 // Latitud del bar
+    private var longitude: Double = 0.0 // Longitud del bar
 
-    private lateinit var mapView: MapView
-    private var googleMap: GoogleMap? = null
+    // Variables relacionadas con Google Maps
+    private lateinit var mapView: MapView // Componente de la vista del mapa
+    private var googleMap: GoogleMap? = null // Objeto que representa el mapa
 
     override fun onCreateView(
         inflater: LayoutInflater, container: ViewGroup?,
         savedInstanceState: Bundle?
     ): View? {
+        // Inflar el layout para este fragmento y asociarlo a la vista
         val view = inflater.inflate(R.layout.fragment_detalles, container, false)
 
-        // Obtener referencias de los elementos de la UI
-        val nameTextView = view.findViewById<TextView>(R.id.tvNombreBArFD)
-        val webTextView = view.findViewById<TextView>(R.id.tvDetallesBarFD)
-        val modifyButton = view.findViewById<Button>(R.id.btModBarFD)
-        val rateButton = view.findViewById<Button>(R.id.btPuntBarFD)
-        val deleteButton = view.findViewById<Button>(R.id.btDelBarFD)
-        mapView = view.findViewById(R.id.mapView) // Inicializar el MapView
+        // Referencias a los elementos de la interfaz de usuario
+        val nameTextView = view.findViewById<TextView>(R.id.tvNombreBArFD) // Nombre del bar
+        val webTextView = view.findViewById<TextView>(R.id.tvDetallesBarFD) // URL del bar
+        val modifyButton = view.findViewById<Button>(R.id.btModBarFD) // Botón de modificar
+        val rateButton = view.findViewById<Button>(R.id.btPuntBarFD) // Botón de puntuar
+        val deleteButton = view.findViewById<Button>(R.id.btDelBarFD) // Botón de eliminar
+        mapView = view.findViewById(R.id.mapView) // Inicialización del MapView
 
-        // Recibir los datos del bar seleccionado
+        // Obtener datos del bar seleccionados de los argumentos recibidos
         arguments?.let { bundle ->
-            barId = bundle.getString("id") // ⚡ Guarda el ID
-            val barName = bundle.getString("nombre", "Nombre no disponible")
-            val barWeb = bundle.getString("web", "Web no disponible")
-            latitude = bundle.getFloat("latitud", 0f).toDouble()
-            longitude = bundle.getFloat("longitud", 0f).toDouble()
+            barId = bundle.getString("id") // ID del bar
+            val barName = bundle.getString("nombre", "Nombre no disponible") // Nombre del bar
+            val barWeb = bundle.getString("web", "Web no disponible") // URL del bar
+            latitude = bundle.getFloat("latitud", 0f).toDouble() // Latitud
+            longitude = bundle.getFloat("longitud", 0f).toDouble() // Longitud
 
-            // Mostrar los datos obtenidos en los TextView
+            // Mostrar la información obtenida en los componentes de la UI
             nameTextView.text = barName
             webTextView.text = barWeb
 
-            // 💡 Hacer la web clickeable y abrir en el navegador
+            // Hacer que el enlace web sea clickeable y se abra en un navegador
             webTextView.setOnClickListener {
                 val intent = Intent(Intent.ACTION_VIEW, Uri.parse(barWeb))
                 startActivity(intent)
@@ -67,7 +72,7 @@ class DetallesFragment : Fragment(), OnMapReadyCallback {
         mapView.onCreate(savedInstanceState)
         mapView.getMapAsync(this)
 
-        // Configurar botones
+        // Configurar botones con sus respectivas acciones
         modifyButton.setOnClickListener {
             Toast.makeText(requireContext(), "Modificar bar (pendiente)", Toast.LENGTH_SHORT).show()
         }
@@ -77,20 +82,24 @@ class DetallesFragment : Fragment(), OnMapReadyCallback {
         }
 
         deleteButton.setOnClickListener {
-            barId?.let { id -> eliminarBar(id) }
+            barId?.let { id -> eliminarBar(id) } // Llamar a la función para eliminar el bar
         }
 
         return view
     }
 
+    /**
+     * Método que se ejecuta cuando el mapa está listo para usarse.
+     * Agrega un marcador en la ubicación del bar y mueve la cámara hacia él.
+     */
     override fun onMapReady(map: GoogleMap) {
         googleMap = map
         val location = LatLng(latitude, longitude)
-
         googleMap?.addMarker(MarkerOptions().position(location).title("Ubicación del Bar"))
         googleMap?.moveCamera(CameraUpdateFactory.newLatLngZoom(location, 15f))
     }
 
+    // Métodos del ciclo de vida del MapView para evitar errores en la visualización del mapa
     override fun onResume() {
         super.onResume()
         mapView.onResume()
@@ -111,26 +120,22 @@ class DetallesFragment : Fragment(), OnMapReadyCallback {
         mapView.onLowMemory()
     }
 
+    /**
+     * Método para eliminar un bar de la base de datos.
+     * @param id ID del bar a eliminar.
+     */
     private fun eliminarBar(id: String) {
-        val dbHandler = ManejoBBDD(requireContext()) // Instanciar la base de datos
-
-        // Convertir el ID a Int
+        val dbHandler = ManejoBBDD(requireContext())
         val barId = id.toIntOrNull()
 
         if (barId != null) {
-            val resultado = dbHandler.deleteBar(crearBar(barId, "", "", 0.0f, 0.0f)) // Solo el ID es relevante
-
-            Log.d("Database", "Filas afectadas al eliminar: $resultado") // Verificar cuántas filas fueron eliminadas
+            val resultado = dbHandler.deleteBar(crearBar(barId, "", "", 0.0f, 0.0f))
+            Log.d("Database", "Filas afectadas al eliminar: $resultado")
 
             if (resultado > 0) {
-                // Notificar que se ha eliminado un bar
-                setFragmentResult("barEliminado", Bundle().apply {
-                    putString("id", id)
-                })
-
+                // Notificar que el bar ha sido eliminado
+                setFragmentResult("barEliminado", Bundle().apply { putString("id", id) })
                 Toast.makeText(requireContext(), "✅ Bar eliminado con ID: $id", Toast.LENGTH_SHORT).show()
-
-                // Volver a la lista
                 activity?.supportFragmentManager?.popBackStack()
             } else {
                 Toast.makeText(requireContext(), "⚠️ Error al eliminar el bar", Toast.LENGTH_SHORT).show()
@@ -140,6 +145,15 @@ class DetallesFragment : Fragment(), OnMapReadyCallback {
         }
     }
 
+    /**
+     * Método auxiliar para crear un objeto Bar con valores por defecto.
+     * @param id ID del bar.
+     * @param nombre_bar Nombre del bar.
+     * @param direccion Dirección del bar.
+     * @param valoracion Valoración del bar.
+     * @param latitud Latitud del bar.
+     * @return Objeto Bar con valores predeterminados.
+     */
     private fun crearBar(
         id: Int = 0,
         nombre_bar: String = "",
@@ -153,9 +167,8 @@ class DetallesFragment : Fragment(), OnMapReadyCallback {
             direccion = direccion,
             valoracion = valoracion,
             latitud = latitud,
-            longitud = 0.0f,  // Valor por defecto
-            web_bar = ""      // Valor por defecto
+            longitud = 0.0f, // Valor por defecto
+            web_bar = "" // Valor por defecto
         )
     }
-
 }

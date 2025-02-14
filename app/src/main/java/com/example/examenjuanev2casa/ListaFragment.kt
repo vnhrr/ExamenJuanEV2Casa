@@ -14,83 +14,96 @@ import androidx.fragment.app.Fragment
 import androidx.fragment.app.setFragmentResultListener
 import com.example.barapp.DetallesFragment
 
+// Fragmento que muestra la lista de bares almacenados en la base de datos
 class ListaFragment : Fragment() {
 
-    private lateinit var dbHandler: ManejoBBDD
-    private lateinit var listViewBares: ListView
-    private lateinit var adapter: BarAdapter
+    // Variables para manejar la base de datos, la lista y el adaptador
+    private lateinit var dbHandler: ManejoBBDD // Manejador de la base de datos
+    private lateinit var listViewBares: ListView // ListView para mostrar la lista de bares
+    private lateinit var adapter: BarAdapter // Adaptador para gestionar la visualización de los bares
 
     override fun onCreateView(
         inflater: LayoutInflater, container: ViewGroup?,
         savedInstanceState: Bundle?
     ): View? {
+        // Inflar el layout asociado a este fragmento
         val view = inflater.inflate(R.layout.fragment_lista, container, false)
 
-        // Inicializar base de datos
+        // Inicializar la base de datos
         dbHandler = ManejoBBDD(requireContext())
 
-        // Referencias a UI
+        // Referencias a elementos de la interfaz de usuario
         listViewBares = view.findViewById(R.id.listViewBares)
         val tituloLista = view.findViewById<TextView>(R.id.tvTListaBares)
         val botonAñadir = view.findViewById<Button>(R.id.btAñadirBarFL)
 
+        // Asignar título a la lista
         tituloLista.text = "Lista de bares"
 
-        // Configurar botón "Añadir"
+        // Configurar el botón para añadir un nuevo bar
         botonAñadir.setOnClickListener {
             startActivity(Intent(requireContext(), AñadirActivity::class.java))
         }
 
-        // 🔥 Escuchar si un bar ha sido eliminado en `DetallesFragment`
+        // Escuchar si un bar ha sido eliminado en `DetallesFragment` y actualizar la lista
         setFragmentResultListener("barEliminado") { _, _ ->
             Log.d("Database", "🔄 Recibida la señal de eliminación. Actualizando lista...")
             actualizarLista()
         }
 
-        // 💡 Detectar clic en un bar y enviar datos a `DetallesFragment`
+        // Configurar la acción al hacer clic en un elemento de la lista
         listViewBares.onItemClickListener = AdapterView.OnItemClickListener { _, _, position, _ ->
-            val selectedBar = adapter.getItem(position) as Bar
+            val selectedBar = adapter.getItem(position) as Bar // Obtener el bar seleccionado
 
+            // Crear un nuevo fragmento de detalles y pasarle los datos del bar seleccionado
             val detallesFragment = DetallesFragment().apply {
                 arguments = Bundle().apply {
-                    putString("id", selectedBar.id.toString())
-                    putString("nombre", selectedBar.nombre_bar)
-                    putFloat("latitud", selectedBar.latitud)
-                    putFloat("longitud", selectedBar.longitud)
-                    putString("web", selectedBar.web_bar)
+                    putString("id", selectedBar.id.toString()) // Pasar ID
+                    putString("nombre", selectedBar.nombre_bar) // Pasar nombre
+                    putFloat("latitud", selectedBar.latitud) // Pasar latitud
+                    putFloat("longitud", selectedBar.longitud) // Pasar longitud
+                    putString("web", selectedBar.web_bar) // Pasar URL web
                 }
             }
 
+            // Reemplazar el fragmento actual con el fragmento de detalles y añadir a la pila de retroceso
             parentFragmentManager.beginTransaction()
                 .replace(R.id.containerFragmentDetalles, detallesFragment)
                 .addToBackStack(null)
                 .commit()
         }
 
-        // Cargar lista de bares
+        // Cargar la lista de bares al iniciar
         actualizarLista()
 
         return view
     }
 
+    /**
+     * Se ejecuta cuando el fragmento se reanuda.
+     * Se usa para asegurar que la lista siempre esté actualizada.
+     */
     override fun onResume() {
         super.onResume()
         Log.d("Database", "🔄 onResume llamado. Forzando actualización de la lista...")
-        actualizarLista() // Asegurar que la lista se actualiza al volver
+        actualizarLista()
     }
 
+    /**
+     * Método para actualizar la lista de bares con los datos de la base de datos.
+     */
     private fun actualizarLista() {
-        val baresLista = dbHandler.getAllBares()
+        val baresLista = dbHandler.getAllBares() // Obtener todos los bares de la base de datos
 
         Log.d("Database", "📋 Total de bares obtenidos después de actualización: ${baresLista.size}")
 
         if (::adapter.isInitialized) {
-            adapter.updateList(baresLista)
-            adapter.notifyDataSetChanged() // 🔥 Notificar cambios al Adapter
-            listViewBares.invalidateViews() // 🔄 Forzar redibujado de la lista
+            adapter.updateList(baresLista) // Actualizar la lista en el adaptador
+            adapter.notifyDataSetChanged() // Notificar al adaptador que los datos han cambiado
+            listViewBares.invalidateViews() // Forzar redibujado de la lista para reflejar los cambios
         } else {
-            adapter = BarAdapter(requireContext(), baresLista)
-            listViewBares.adapter = adapter
+            adapter = BarAdapter(requireContext(), baresLista) // Crear un nuevo adaptador
+            listViewBares.adapter = adapter // Asignar el adaptador a la ListView
         }
     }
 }

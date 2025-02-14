@@ -16,9 +16,8 @@ class ManejoBBDD(context: Context) : SQLiteOpenHelper(context, DATABASE_NAME, nu
         Log.d("Database", "📁 Ruta correcta de la base de datos: $path")
     }
 
-
-    // Bloque compcolorn object para definir constantes que serán usadas en toda la clase.
-    // Son como los valores estáticos en Java
+    // Bloque companion object para definir constantes que serán usadas en toda la clase.
+    // Son equivalentes a los valores estáticos en Java.
     companion object {
         // Nombre de la base de datos.
         private const val DATABASE_NAME = "BaresDatabase"
@@ -61,9 +60,9 @@ class ManejoBBDD(context: Context) : SQLiteOpenHelper(context, DATABASE_NAME, nu
 
     // Método para obtener todos los bares de la base de datos.
     fun getAllBares(): ArrayList<Bar> {
-        // Lista para almacenar y retornar los Gatos.
+        // Lista para almacenar y retornar los bares.
         val barList = ArrayList<Bar>()
-        // Consulta SQL para seleccionar todos los Gatos.
+        // Consulta SQL para seleccionar todos los bares.
         val selectQuery = "SELECT  * FROM $TABLE_BAR"
 
         val db = this.readableDatabase
@@ -76,15 +75,6 @@ class ManejoBBDD(context: Context) : SQLiteOpenHelper(context, DATABASE_NAME, nu
             db.execSQL(selectQuery)
             return ArrayList()
         }
-
-        // Variables para almacenar los valores de las columnas.
-        var id: Int
-        var nombre: String
-        var dir: String
-        var valo: String
-        var lat: String
-        var long: String
-        var web: String
 
         // Itera a través del cursor para leer los datos de la base de datos.
         if (cursor.moveToFirst()) {
@@ -102,17 +92,15 @@ class ManejoBBDD(context: Context) : SQLiteOpenHelper(context, DATABASE_NAME, nu
                 if (idIndex != -1 && nombreIndex != -1 && dirIndex != -1 && valIndex != -1 && latIndex != -1 && longIndex != -1
                     && webIndex != -1) {
                     // Lee los valores y los añade a la lista de bares.
-                    id = cursor.getInt(idIndex)
-                    nombre = cursor.getString(nombreIndex)
-                    dir = cursor.getString(dirIndex)
-                    valo = cursor.getString(valIndex)
-                    lat = cursor.getString(latIndex)
-                    long = cursor.getString(longIndex)
-                    web = cursor.getString(webIndex)
-
-
-                    val bar = Bar(id = id, nombre_bar = nombre, direccion = dir, valoracion = valo.toFloat(), latitud = lat.toFloat(),
-                        longitud = long.toFloat(), web_bar = web)
+                    val bar = Bar(
+                        id = cursor.getInt(idIndex),
+                        nombre_bar = cursor.getString(nombreIndex),
+                        direccion = cursor.getString(dirIndex),
+                        valoracion = cursor.getFloat(valIndex),
+                        latitud = cursor.getFloat(latIndex),
+                        longitud = cursor.getFloat(longIndex),
+                        web_bar = cursor.getString(webIndex)
+                    )
                     barList.add(bar)
                 }
             } while (cursor.moveToNext())
@@ -123,12 +111,11 @@ class ManejoBBDD(context: Context) : SQLiteOpenHelper(context, DATABASE_NAME, nu
         return barList
     }
 
+    // Método para abrir la base de datos en modo escritura.
     fun openDatabase() {
         val db = this.writableDatabase
         Log.d("Database", "📂 Base de datos abierta correctamente")
     }
-
-
 
     // Método para actualizar un bar en la base de datos.
     fun updateBar(bar: Bar): Int {
@@ -178,5 +165,3 @@ class ManejoBBDD(context: Context) : SQLiteOpenHelper(context, DATABASE_NAME, nu
         }
     }
 }
-
-

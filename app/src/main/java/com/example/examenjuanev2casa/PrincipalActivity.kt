@@ -11,48 +11,49 @@ import androidx.appcompat.widget.Toolbar
 import androidx.fragment.app.Fragment
 import com.example.barapp.DetallesFragment
 
+// Actividad principal que gestiona la interfaz de usuario y la navegación entre fragmentos
 class PrincipalActivity : AppCompatActivity() {
 
-    private lateinit var spinnerBares: Spinner
-    private lateinit var dbHelper: ManejoBBDD
+    private lateinit var spinnerBares: Spinner // Spinner para seleccionar bares
+    private lateinit var dbHelper: ManejoBBDD // Manejador de base de datos
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_main)
 
-        dbHelper = ManejoBBDD(this) // Inicializar base de datos
-        verificarBaseDeDatos()
+        dbHelper = ManejoBBDD(this) // Inicializar la base de datos
+        verificarBaseDeDatos() // Verificar que la base de datos está funcionando correctamente
 
         // Configurar la Toolbar
         val toolbar: Toolbar = findViewById(R.id.toolbar)
         setSupportActionBar(toolbar)
-        supportActionBar?.title = "Bares Parquesol" // Titulo de la toolbar
+        supportActionBar?.title = "Bares Parquesol" // Título de la toolbar
         supportActionBar?.setDisplayShowTitleEnabled(true) // Muestra el título
-        supportActionBar?.setDisplayShowHomeEnabled(true) // ✅ Habilitar el icono
-        supportActionBar?.setLogo(R.mipmap.bar) // ✅ Añadir el icono
+        supportActionBar?.setDisplayShowHomeEnabled(true) // Habilitar el icono
+        supportActionBar?.setLogo(R.mipmap.bar) // Añadir el icono a la toolbar
 
         // Inicializar Spinner
         spinnerBares = findViewById(R.id.spinnerBares)
-        cargarBaresEnSpinner() // 🔄 Cargar bares en el spinner
+        cargarBaresEnSpinner() // Cargar la lista de bares en el Spinner
 
         // Cargar los fragmentos solo si no están ya cargados
         if (savedInstanceState == null) {
-            loadFragmentLista(ListaFragment()) // Cargar la lista de bares
-            loadFragment(DetallesFragment())  // Cargar los detalles de un bar
+            loadFragmentLista(ListaFragment()) // Cargar el fragmento de la lista de bares
+            loadFragment(DetallesFragment()) // Cargar el fragmento de detalles de un bar
         }
 
-        // Manejar selección del Spinner
+        // Manejar la selección de bares en el Spinner
         spinnerBares.onItemSelectedListener = object : AdapterView.OnItemSelectedListener {
             override fun onItemSelected(parent: AdapterView<*>?, view: View?, position: Int, id: Long) {
                 val baresLista = dbHelper.getAllBares()
                 if (position < baresLista.size) {
                     val barSeleccionado = baresLista[position]
-                    cargarDetallesBar(barSeleccionado) // 🔥 Actualizar DetallesFragment con el bar seleccionado
+                    cargarDetallesBar(barSeleccionado) // Actualizar DetallesFragment con el bar seleccionado
                 }
             }
 
             override fun onNothingSelected(parent: AdapterView<*>?) {
-                // Aquí puedes dejarlo vacío o mostrar un mensaje si quieres
+                // No se realiza ninguna acción si no se selecciona nada
             }
         }
     }
@@ -73,15 +74,15 @@ class PrincipalActivity : AppCompatActivity() {
      * Carga los bares desde la base de datos y los muestra en el Spinner
      */
     private fun cargarBaresEnSpinner() {
-        val baresLista = dbHelper.getAllBares() // Obtener lista desde la BD
+        val baresLista = dbHelper.getAllBares() // Obtener lista de bares desde la BD
 
         if (baresLista.isNotEmpty()) {
-            val nombresBares = baresLista.map { it.nombre_bar }
+            val nombresBares = baresLista.map { it.nombre_bar } // Obtener nombres de los bares
 
             val adapter = ArrayAdapter(this, android.R.layout.simple_spinner_item, nombresBares)
             adapter.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item)
 
-            spinnerBares.adapter = adapter
+            spinnerBares.adapter = adapter // Asignar adaptador al Spinner
             Log.d("Database", "🔄 Spinner actualizado con ${nombresBares.size} bares")
         } else {
             Log.d("Database", "⚠️ No hay bares en la base de datos")
@@ -89,12 +90,12 @@ class PrincipalActivity : AppCompatActivity() {
     }
 
     /**
-     * Carga el fragmento de la lista de bares
+     * Carga el fragmento de la lista de bares en su contenedor
      */
     private fun loadFragmentLista(listaFragment: ListaFragment) {
         supportFragmentManager.beginTransaction()
             .replace(R.id.containerFragmentLista, listaFragment)
-            .addToBackStack(null) // Agrega a la pila para poder volver atrás
+            .addToBackStack(null) // Agregar a la pila para navegación
             .commit()
     }
 
@@ -104,12 +105,13 @@ class PrincipalActivity : AppCompatActivity() {
     private fun loadFragment(fragment: Fragment) {
         supportFragmentManager.beginTransaction()
             .replace(R.id.containerFragmentDetalles, fragment)
-            .addToBackStack(null) // Agrega a la pila para poder volver atrás
+            .addToBackStack(null) // Agregar a la pila para navegación
             .commit()
     }
 
     /**
-     * Actualiza el `DetallesFragment` con los datos del bar seleccionado en el Spinner
+     * Carga y actualiza `DetallesFragment` con los datos del bar seleccionado en el Spinner
+     * @param bar Bar seleccionado para mostrar detalles
      */
     private fun cargarDetallesBar(bar: Bar) {
         val detallesFragment = DetallesFragment().apply {
@@ -122,6 +124,7 @@ class PrincipalActivity : AppCompatActivity() {
             }
         }
 
-        loadFragment(detallesFragment) // Cargar el fragmento con los nuevos datos
+        loadFragment(detallesFragment) // Cargar el fragmento con los nuevos datos del bar seleccionado
     }
 }
+
