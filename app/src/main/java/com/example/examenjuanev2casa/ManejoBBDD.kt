@@ -11,6 +11,11 @@ import android.util.Log
 // Clase DatabaseHelper que extiende SQLiteOpenHelper para manejar la base de datos de la aplicación.
 class ManejoBBDD(context: Context) : SQLiteOpenHelper(context, DATABASE_NAME, null, DATABASE_VERSION) {
 
+    init {
+        val path = context.getDatabasePath(DATABASE_NAME).absolutePath
+        Log.d("Database", "📁 Ruta correcta de la base de datos: $path")
+    }
+
 
     // Bloque compcolorn object para definir constantes que serán usadas en toda la clase.
     // Son como los valores estáticos en Java
@@ -39,8 +44,8 @@ class ManejoBBDD(context: Context) : SQLiteOpenHelper(context, DATABASE_NAME, nu
                 + KEY_NOMBRE + " TEXT,"
                 + KEY_DIRECCION + " TEXT,"
                 + KEY_VALORACION + " INTEGER,"
-                + KEY_LATITUD + " INTEGER,"
-                + KEY_LONGITUD + " INTEGER,"
+                + KEY_LATITUD + " REAL,"
+                + KEY_LONGITUD + " REAL,"
                 + KEY_WEB + " TEXT" + ")")
 
         // Ejecuta la sentencia SQL para crear la tabla.
@@ -120,8 +125,9 @@ class ManejoBBDD(context: Context) : SQLiteOpenHelper(context, DATABASE_NAME, nu
 
     fun openDatabase() {
         val db = this.writableDatabase
-        println("📂 Base de datos abierta correctamente")
+        Log.d("Database", "📂 Base de datos abierta correctamente")
     }
+
 
 
     // Método para actualizar un bar en la base de datos.
@@ -141,7 +147,6 @@ class ManejoBBDD(context: Context) : SQLiteOpenHelper(context, DATABASE_NAME, nu
         val db = this.writableDatabase
         // Elimina la fila correspondiente y retorna el número de filas afectadas.
         val success = db.delete(TABLE_BAR, "$KEY_ID = ?", arrayOf(bar.id.toString()))
-        db.close()
         return success
     }
 
@@ -160,7 +165,6 @@ class ManejoBBDD(context: Context) : SQLiteOpenHelper(context, DATABASE_NAME, nu
 
             // Inserta el nuevo bar y retorna el ID del nuevo bar o -1 en caso de error.
             val success = db.insert(TABLE_BAR, null, contentValues)
-            db.close()
             return success
         } catch (e: Exception) {
             // Maneja la excepción en caso de error al insertar.

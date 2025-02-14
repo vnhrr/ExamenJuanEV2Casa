@@ -1,6 +1,7 @@
 package com.example.examenjuanev2casa
 
 import android.os.Bundle
+import android.util.Log
 import androidx.appcompat.app.AppCompatActivity
 import androidx.appcompat.widget.Toolbar
 import androidx.fragment.app.Fragment
@@ -17,6 +18,12 @@ class PrincipalActivity : AppCompatActivity() {
         val dbHelper = ManejoBBDD(this)
         dbHelper.openDatabase()
 
+        val db = dbHelper.writableDatabase
+        if (db.isOpen) {
+            Log.d("Database", "✅ Base de datos abierta correctamente")
+        } else {
+            Log.e("Database", "❌ Error al abrir la base de datos")
+        }
 
 
         // Configurar la Toolbar

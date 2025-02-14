@@ -22,10 +22,10 @@
                 android:layout_height="200dp"
                 app:layout_constraintEnd_toEndOf="@+id/tvDetallesBarFD"
                 app:layout_constraintStart_toStartOf="@+id/tvDetallesBarFD"
-                app:layout_constraintTop_toBottomOf="@+id/tvNombreBArFD" />
+                app:layout_constraintTop_toBottomOf="@+id/tvDetallesBarFD" />
 
             <TextView
-                android:id="@+id/tvDetallesBarFD"
+                android:id="@+id/tvNombreBArFD"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:text="TextView"
@@ -36,15 +36,18 @@
                 app:layout_constraintTop_toTopOf="parent" />
 
             <TextView
-                android:id="@+id/tvNombreBArFD"
-                android:layout_width="wrap_content"
+                android:id="@+id/tvDetallesBarFD"
+                android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:text="TextView"
-                android:textColor="@color/black"
-                android:textSize="24dp"
-                app:layout_constraintEnd_toEndOf="@+id/tvDetallesBarFD"
-                app:layout_constraintStart_toStartOf="@+id/tvDetallesBarFD"
-                app:layout_constraintTop_toBottomOf="@+id/tvDetallesBarFD" />
+                android:autoLink="web"
+                android:clickable="true"
+                android:focusable="true"
+                android:text="Web del Bar"
+                android:textColor="@android:color/holo_blue_dark"
+                android:textSize="16sp"
+                app:layout_constraintEnd_toEndOf="@+id/tvNombreBArFD"
+                app:layout_constraintStart_toStartOf="@+id/tvNombreBArFD"
+                app:layout_constraintTop_toBottomOf="@+id/tvNombreBArFD" />
 
             <Button
                 android:id="@+id/btModBarFD"
